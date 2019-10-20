@@ -1,0 +1,29 @@
+version: '3.5'
+
+services:
+  kibana:
+    #container_name: kibana
+    #image: docker.elastic.co/kibana/kibana:7.4.0
+    build:
+      context: ./
+    volumes:
+      - data:/usr/share/kibana/data
+      - type: bind
+        source: ./config/kibana-standalone.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5601:5601"
+    environment:
+      - "NODE_OPTIONS=--max-old-space-size=1024"
+    networks:
+      - esnet
+    restart: always
+
+volumes:
+  data:
+    driver: local
+      
+networks:
+  esnet:
+    driver: bridge

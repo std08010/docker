@@ -1,0 +1,27 @@
+server.name: kibana
+server.host: "0"
+
+server.ssl.enabled: true
+server.ssl.key: /usr/share/kibana/config/certificates/instance/instance.key
+server.ssl.certificate: /usr/share/kibana/config/certificates/instance/instance.crt
+
+## X-Pack security credentials
+xpack.security.sessionTimeout: 600000
+
+# Send Monitoring Data
+xpack.monitoring.enabled: true
+xpack.monitoring.kibana.collection.enabled: true
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+#Monitoring cluster
+xpack.monitoring.elasticsearch.hosts: ["http://elasticsearch1:9200"]
+xpack.monitoring.elasticsearch.username: elastic
+xpack.monitoring.elasticsearch.password: mypassword
+#xpack.monitoring.elasticsearch.ssl.certificateAuthorities: /usr/share/kibana/config/certificates/ca/ca.crt
+
+
+#Production cluster
+elasticsearch.hosts: [ "http://elasticsearch1:9200" ]
+elasticsearch.username: elastic
+elasticsearch.password: mypassword
+#elasticsearch.ssl.verificationMode: none
+#elasticsearch.ssl.certificateAuthorities: /usr/share/kibana/config/certificates/ca/ca.crt

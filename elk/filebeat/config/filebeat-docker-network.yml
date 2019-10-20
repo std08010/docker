@@ -1,0 +1,39 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      labels.dedot: true
+      templates:
+        - condition:
+            contains:
+              container.labels.collect_logs_with_filebeat: "true"
+          config:
+            - type: container
+              format: docker
+              paths:
+                - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+              processors:
+                - decode_json_fields:
+                    when.equals:
+                      docker.container.labels.decode_log_event_to_json_object: "true"
+                    fields: ["message"]
+                    target: ""
+                    overwrite_keys: true
+
+output.logstash:
+  hosts: "logstash:5044"
+  #This sets the metadata 'beat' to logstash so that it can modify the index name it creates on elastic search
+  index: filebeat-docker
+
+#Disable this because filebeat will produce many logs that are not necessary for you.
+logging.metrics.enabled: false
+
+#XPack configuration
+monitoring:
+  enabled: true
+  #Set this so that the beat doesn't create a Standalone Cluster in Kibana
+  #To get this uuid open Kibana , navigate to monitoring, select the docker-cluster and take the value from the url
+  cluster_uuid: gib7vV-4Q0WiL7aBnDRbZg
+  elasticsearch:
+    hosts: ["http://elasticsearch1:9200"] 
+    username: elastic
+    password: mypassword

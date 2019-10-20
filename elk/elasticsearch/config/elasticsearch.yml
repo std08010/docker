@@ -1,0 +1,35 @@
+---
+## Default Elasticsearch configuration from Elasticsearch base image.
+## https://github.com/elastic/elasticsearch/blob/master/distribution/docker/src/docker/config/elasticsearch.yml
+#
+cluster.name: "docker-cluster"
+network.host: 0.0.0.0
+
+## Use single node discovery in order to disable production mode and avoid bootstrap checks
+## see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+#
+#discovery.type: single-node
+
+bootstrap.memory_lock: true
+
+## X-Pack settings
+## see https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-xpack.html
+#
+xpack:
+  # trial is for a paid version where basic is for the non-paid version
+  license.self_generated.type: basic
+  security:
+    enabled: true
+    transport.ssl:
+      enabled: true
+      verification_mode: certificate
+      certificate_authorities: /usr/share/elasticsearch/config/certificates/ca/ca.crt
+      certificate: /usr/share/elasticsearch/config/certificates/instance/instance.crt
+      key: /usr/share/elasticsearch/config/certificates/instance/instance.key
+    http.ssl:
+      enabled: false
+      #certificate_authorities: /usr/share/elasticsearch/config/certificates/ca/ca.crt
+      #certificate: /usr/share/elasticsearch/config/certificates/instance/instance.crt
+      #key: /usr/share/elasticsearch/config/certificates/instance/instance.key
+  
+  monitoring.collection.enabled: true

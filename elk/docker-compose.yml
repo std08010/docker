@@ -1,0 +1,171 @@
+version: "3.5"
+
+services:
+  elasticsearch1:
+    build:
+      context: ./elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch1_data
+        target: /usr/share/elasticsearch/data
+      - type: volume
+        source: certs
+        target: /usr/share/elasticsearch/config/certificates
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+    networks:
+      - elknet
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ELASTIC_PASSWORD=mypassword"
+      - discovery.seed_hosts=elasticsearch1
+      - node.name=es1
+      - node.master=true
+      - node.data=true
+      - node.ingest=true
+      - cluster.initial_master_nodes=es1
+    restart: always
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  elasticsearch2:
+    depends_on:
+      - elasticsearch1
+    build:
+      context: ./elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch2_data
+        target: /usr/share/elasticsearch/data
+      - type: volume
+        source: certs
+        target: /usr/share/elasticsearch/config/certificates
+    networks:
+      - elknet
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.seed_hosts=elasticsearch1
+      - node.name=es2
+      - node.master=false
+      - node.data=true
+      - node.ingest=true
+      - cluster.initial_master_nodes=es1
+    restart: always
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  logstash:
+    depends_on:
+      - elasticsearch1
+      - elasticsearch2
+    build:
+      context: ./logstash/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./logstash/config/logstash-network.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline/logstash-network.conf
+        target: /usr/share/logstash/pipeline/logstash.conf
+        read_only: true
+      #- type: bind
+       # source: ./logstash/pipeline
+        #target: /usr/share/logstash/pipeline
+        #read_only: true
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+    environment:
+      - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - elknet
+    restart: always
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+
+  kibana:
+    depends_on:
+      - elasticsearch1
+      - elasticsearch2
+    build:
+      context: ./kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana-network.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+      - type: volume
+        source: certs
+        target: /usr/share/kibana/config/certificates
+    ports:
+      - "5601:5601"
+    environment:
+      - "NODE_OPTIONS=--max-old-space-size=1024"
+    networks:
+      - elknet
+    restart: always
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+
+  filebeat:
+    depends_on:
+      - logstash
+    build:
+      context: ./filebeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    #must use this parameter because we get an error about the permissions of the filebeat.yml file.
+    entrypoint: "filebeat -e -strict.perms=false"
+    volumes:
+      - filebeat_data:/usr/share/filebeat/data
+      - type: bind
+        source: ./filebeat/config/filebeat-docker-network.yml
+        target: /usr/share/filebeat/filebeat.yml
+        read_only: true
+        # Docker logs filepath
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+        # Additional information about containers
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    # Allow access to log files and docker.sock
+    user: root
+    networks:
+      - elknet
+    restart: always
+
+volumes:
+  certs:
+    driver: local
+  elasticsearch1_data:
+    driver: local
+  elasticsearch2_data:
+    driver: local
+  filebeat_data:
+    driver: local
+
+networks:
+  elknet:
+    driver: bridge

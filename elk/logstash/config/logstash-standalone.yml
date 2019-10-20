@@ -1,0 +1,8 @@
+http.host: "0.0.0.0"
+
+# Send Monitoring Data
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.hosts: [ "http://10.0.2.15:9200" ]
+xpack.monitoring.elasticsearch.username: elastic
+xpack.monitoring.elasticsearch.password: mypassword
+#xpack.monitoring.elasticsearch.ssl.certificateAuthorities: /usr/share/logstash/config/certificates/ca/ca.crt

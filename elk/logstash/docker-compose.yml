@@ -1,0 +1,35 @@
+version: '3.5'
+
+services:
+  logstash:
+    #container_name: logstash
+    #image: docker.elastic.co/logstash/logstash:7.4.0
+    build:
+      context: ./
+    volumes:
+      - data:/usr/share/logstash/data
+      - type: bind
+        source: ./config/logstash-standalone.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./pipeline/logstash-standalone.conf
+        target: /usr/share/logstash/pipeline/logstash.conf
+        read_only: true
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+      - "5044:5044"
+    environment:
+      - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - esnet
+    restart: always
+      
+volumes:
+  data:
+    driver: local
+    
+networks:
+  esnet:
+    driver: bridge

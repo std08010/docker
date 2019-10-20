@@ -1,0 +1,31 @@
+version: '3.5'
+
+services:
+  filebeat:
+    #container_name: filebeat
+    #image: docker.elastic.co/beats/filebeat:7.4.0
+    build:
+      context: ./
+    volumes:
+      - data:/usr/share/filebeat/data
+      - type: bind
+        source: ./config/filebeat-docker-standalone.yml
+        target: /usr/share/filebeat/filebeat.yml
+        read_only: true
+        # Docker logs
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+        # Additional information about containers
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    # Allow access to log files and docker.sock
+    user: root
+    networks:
+      - esnet
+    restart: always
+
+volumes:
+  data:
+    driver: local
+      
+networks:
+  esnet:
+    driver: bridge
