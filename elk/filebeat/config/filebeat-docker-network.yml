@@ -18,14 +18,34 @@ filebeat.autodiscover:
                     fields: ["message"]
                     target: ""
                     overwrite_keys: true
+                
+
+processors:
+  #- add_cloud_metadata:
+  - add_docker_metadata:
+  #- add_host_metadata:
+     # netinfo.enabled: true
+  - rename:
+      fields:
+        - from: "container.labels.log_group"
+          to: "container.log_group"
+      ignore_missing: true
+  - drop_fields:
+      fields: ["agent", "docker", "container.labels", "stream", "input.type"]
+      ignore_missing: true
 
 output.logstash:
   hosts: "logstash:5044"
   #This sets the metadata 'beat' to logstash so that it can modify the index name it creates on elastic search
   index: filebeat-docker
+  compression_level: 5
 
 #Disable this because filebeat will produce many logs that are not necessary for you.
-logging.metrics.enabled: false
+logging:
+  metrics.enabled: false
+  level: error
+  to_files: false
+  json: true
 
 #XPack configuration
 monitoring:

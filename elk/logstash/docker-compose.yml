@@ -25,6 +25,10 @@ services:
     networks:
       - esnet
     restart: always
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      log_group: "logstash"
       
 volumes:
   data:

@@ -1,4 +1,4 @@
-version: "3.5"
+version: "2.4"
 
 services:
   elasticsearch1:
@@ -32,6 +32,7 @@ services:
       - node.ingest=true
       - cluster.initial_master_nodes=es1
     restart: always
+    mem_limit: 1024m
     ulimits:
       memlock:
         soft: -1
@@ -66,6 +67,7 @@ services:
       - node.ingest=true
       - cluster.initial_master_nodes=es1
     restart: always
+    mem_limit: 1024m
     ulimits:
       memlock:
         soft: -1
@@ -100,9 +102,11 @@ services:
     networks:
       - elknet
     restart: always
+    mem_limit: 512m
     labels:
       collect_logs_with_filebeat: "true"
       decode_log_event_to_json_object: "true"
+      log_group: "logstash"
 
   kibana:
     depends_on:
@@ -127,9 +131,11 @@ services:
     networks:
       - elknet
     restart: always
+    mem_limit: 1024m
     labels:
       collect_logs_with_filebeat: "true"
       decode_log_event_to_json_object: "true"
+      log_group: "kibana"
 
   filebeat:
     depends_on:
@@ -155,6 +161,7 @@ services:
     networks:
       - elknet
     restart: always
+    mem_limit: 512m
 
 volumes:
   certs:
