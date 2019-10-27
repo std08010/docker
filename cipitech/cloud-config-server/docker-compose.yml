@@ -1,0 +1,32 @@
+version: "2.4"
+
+services:
+  cloud-config-server:
+    image: acipi/cipitech:cloud-config-server-${APP_VERSION}
+    environment:
+      - "JAVA_OPTS=-Xms${MEM_LIMIT} -Xmx${MEM_LIMIT}"
+      - spring.profiles.include=${APP_STAGE},docker
+    volumes:
+      - type: bind
+        source: /data/bootstrap
+        target: /data/bootstrap
+        read_only: true
+    ports:
+      - "8888:8888"
+      - "8887:8887"
+    networks:
+      - net
+    restart: always
+    mem_limit: ${MEM_LIMIT}
+    logging:
+      options:
+        max-size: 200m
+        max-file: "10"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      log_group: "cipitech"
+
+networks:
+  net:
+    driver: bridge
