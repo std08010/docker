@@ -1,23 +1,23 @@
-version: '2.4'
+version: '3.5'
 
 services:
-  mongo-db:
+  mysql-db:
     build:
       context: ./
       args:
-        MONGO_VERSION: $MONGO_VERSION
+        MYSQL_VERSION: $MYSQL_VERSION
     environment:
-      - "MONGO_INITDB_ROOT_USERNAME=root"
-      - "MONGO_INITDB_ROOT_PASSWORD=example"
+      - "MYSQL_ROOT_PASSWORD=zk4Vy8sv"
     volumes:
-      - mongo_data:/data/db
-      - mongo_config:/data/configdb
+      - mysql_data:/var/lib/mysql
+      - mysql_config:/etc/mysql/conf.d
     ports:
-      - "27017:27017"
+      - "3306:3306"
+      - "33060:33060"
     networks:
       - net
     restart: always
-    mem_limit: 512m
+    mem_limit: 2g
     logging:
       options:
         max-size: 200m
@@ -25,12 +25,12 @@ services:
     labels:
       collect_logs_with_filebeat: "true"
       decode_log_event_to_json_object: "true"
-      log_group: "mongo"
+      log_group: "mysql"
       
 volumes:
-  mongo_data:
+  mysql_data:
     driver: local
-  mongo_config:
+  mysql_config:
     driver: local
     
 networks:
