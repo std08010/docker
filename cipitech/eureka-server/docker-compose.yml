@@ -1,19 +1,20 @@
 version: "2.4"
 
 services:
-  cloud-config-server:
-    image: acipi/cipitech:cloud-config-server-$APP_VERSION
+  eureka-server:
+    image: acipi/cipitech:eureka-server-$APP_VERSION
     environment:
       - "JAVA_OPTS=-Xms$MEM_LIMIT -Xmx$MEM_LIMIT"
       - spring.profiles.active=$APP_STAGE,docker
+      - spring.cloud.bootstrap.location=/data/bootstrap/cipitech-eureka-server/,/data/bootstrap/
     volumes:
       - type: bind
         source: /data/bootstrap
         target: /data/bootstrap
         read_only: true
     ports:
-      - "8888:8888"
-      - "8887:8887"
+      - "8761:8761"
+      - "8762:8762"
     networks:
       - net
     restart: always

@@ -1,0 +1,36 @@
+version: '2.4'
+
+services:
+  mongo-dashboard:
+    build:
+      context: ./
+      args:
+        MONGO_EXPRESS_VERSION: $MONGO_EXPRESS_VERSION
+    environment:
+      # When they are on the same network
+      - "ME_CONFIG_MONGODB_SERVER=mongo-db"
+      - "ME_CONFIG_MONGODB_PORT=27017"
+      # The credentials to login to the admin interface
+      - "ME_CONFIG_BASICAUTH_USERNAME=mongo"
+      - "ME_CONFIG_BASICAUTH_PASSWORD=mongo"
+      # The credentials of the mongo server
+      - "ME_CONFIG_MONGODB_ADMINUSERNAME=root"
+      - "ME_CONFIG_MONGODB_ADMINPASSWORD=example"
+    ports:
+      - "8091:8081"
+    networks:
+      - net
+    restart: always
+    mem_limit: 512m
+    logging:
+      options:
+        max-size: 200m
+        max-file: "10"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      log_group: "mongo-express"
+    
+networks:
+  net:
+    driver: bridge

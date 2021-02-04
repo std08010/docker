@@ -1,0 +1,38 @@
+version: '2.4'
+
+services:
+  mongo-db:
+    build:
+      context: ./
+      args:
+        MONGO_VERSION: $MONGO_VERSION
+    environment:
+      - "MONGO_INITDB_ROOT_USERNAME=root"
+      - "MONGO_INITDB_ROOT_PASSWORD=example"
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+    ports:
+      - "27017:27017"
+    networks:
+      - net
+    restart: always
+    mem_limit: 512m
+    logging:
+      options:
+        max-size: 200m
+        max-file: "10"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      log_group: "mongo"
+      
+volumes:
+  mongo_data:
+    driver: local
+  mongo_config:
+    driver: local
+    
+networks:
+  net:
+    driver: bridge

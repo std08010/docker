@@ -1,0 +1,3 @@
+ARG AXON_VERSION=4.2
+
+FROM axoniq/axonserver:${AXON_VERSION}

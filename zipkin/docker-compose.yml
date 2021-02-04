@@ -1,0 +1,34 @@
+version: '2.4'
+
+services:
+  zipkin:
+    build:
+      context: ./
+    environment:
+      - "STORAGE_TYPE=elasticsearch"
+      - "ES_HOSTS=http://elasticsearch1:9200"
+      - "ES_USERNAME=elastic"
+      - "ES_PASSWORD=mypassword"
+    ports:
+      - "9411:9411"
+    networks:
+      - default
+      - net
+    restart: always
+    mem_limit: 512m
+    logging:
+      options:
+        max-size: 200m
+        max-file: "10"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      log_group: "zipkin"
+    
+networks:
+  #This is used to connect to a network without appending the project name, just give the complete network name.
+  default:
+    external:
+      name: elk_elknet
+  net:
+    driver: bridge

@@ -1,0 +1,44 @@
+version: '2.4'
+
+services:
+  axonserver:
+    build:
+      context: ./
+      args:
+        AXON_VERSION: $AXON_VERSION
+    environment:
+      - "JAVA_OPTS=-Xms512m -Xmx512m"
+      - "AXONSERVER_NAME=cipitech-axon"
+      # For secure connections these two settings will require clients to pass a token.
+      - axoniq.axonserver.accesscontrol.enabled=true
+      - axoniq.axonserver.accesscontrol.token=myaxontoken
+    volumes:
+      #The event store and the axon server database
+      - axon_data:/opt/axonserver/data
+      #The log store
+      - axon_log:/opt/axonserver/log
+    ports:
+      - "8124:8124"
+      - "8024:8024"
+    networks:
+      - net
+    restart: always
+    mem_limit: 512m
+    logging:
+      options:
+        max-size: 200m
+        max-file: "10"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      log_group: "axon"
+      
+volumes:
+  axon_data:
+    driver: local
+  axon_log:
+    driver: local
+    
+networks:
+  net:
+    driver: bridge
