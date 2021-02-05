@@ -1,23 +1,26 @@
-version: '3.8'
+version: '3.7'
 
 services:
-  mysql-db:
+  mysql_db:
     build:
       context: ./
       args:
         MYSQL_VERSION: $MYSQL_VERSION
     environment:
-      - "MYSQL_ROOT_PASSWORD=zk4Vy8sv"
+      MYSQL_ROOT_PASSWORD: zk4Vy8sv
     volumes:
       - mysql_data:/var/lib/mysql
-      - mysql_config:/etc/mysql/conf.d
+      - mysql_config:/etc/mysql
     ports:
       - "3306:3306"
-      - "33060:33060"
     networks:
       - net
     restart: always
-    mem_limit: 2096m
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: "2g"
     logging:
       options:
         max-size: 200m
