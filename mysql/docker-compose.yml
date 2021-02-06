@@ -29,11 +29,42 @@ services:
       collect_logs_with_filebeat: "true"
       decode_log_event_to_json_object: "true"
       log_group: "mysql"
+  
+  mysql_db_backup:
+    image: woolfg/mysql-backup-sidecar:$MYSQL_BACKUP_VERSION
+    environment:
+      CRON_SCHEDULE: "30 3 * * *"
+      BACKUP_DIR: /backup
+      INCREMENTAL: "true"
+      MYSQL_USER: root
+      MYSQL_PASSWORD: zk4Vy8sv
+      MYSQL_HOST: mysql_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - mysql_backup:/backup
+    networks:
+      - net
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: "1g"
+    logging:
+      options:
+        max-size: 200m
+        max-file: "10"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      log_group: "mysql-backup"
       
 volumes:
   mysql_data:
     driver: local
   mysql_config:
+    driver: local
+  mysql_backup:
     driver: local
     
 networks:
