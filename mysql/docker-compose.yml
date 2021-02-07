@@ -38,6 +38,8 @@ services:
       DB_USER: root
       DB_PASS: zk4Vy8sv
       DB_SERVER: mysql_db
+      DB_DUMP_DEBUG: "true"
+      MYSQLDUMP_OPTS: "--single-transaction"
     volumes:
       - mysql_backup:/backup
     networks:
