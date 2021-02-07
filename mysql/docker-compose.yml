@@ -35,11 +35,12 @@ services:
       DB_DUMP_BEGIN: +0
       DB_DUMP_TARGET: /backup
       DB_DUMP_BY_SCHEMA: "true"
+      DB_NAMES: "wordpress sys"
       DB_USER: root
       DB_PASS: zk4Vy8sv
       DB_SERVER: mysql_db
       DB_DUMP_DEBUG: "true"
-      MYSQLDUMP_OPTS: "--single-transaction"
+      #MYSQLDUMP_OPTS: "--single-transaction"
     volumes:
       - mysql_backup:/backup
     networks:
