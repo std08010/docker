@@ -31,16 +31,17 @@ services:
       log_group: "mysql"
   
   mysql_db_backup:
-    image: woolfg/mysql-backup-sidecar:$MYSQL_BACKUP_VERSION
+    image: databack/mysql-backup:latest
     environment:
-      CRON_SCHEDULE: "30 3 * * *"
-      BACKUP_DIR: /backup
-      INCREMENTAL: "true"
-      MYSQL_USER: root
-      MYSQL_PASSWORD: zk4Vy8sv
-      MYSQL_HOST: mysql_db
+      #DB_DUMP_CRON: "30 3 * * *"
+      DB_DUMP_FREQ: 1440
+      DB_DUMP_BEGIN: +0
+      DB_DUMP_TARGET: /backup
+      DB_DUMP_BY_SCHEMA: "true"
+      DB_USER: root
+      DB_PASS: zk4Vy8sv
+      DB_SERVER: mysql_db
     volumes:
-      - mysql_data:/var/lib/mysql
       - mysql_backup:/backup
     networks:
       - net
