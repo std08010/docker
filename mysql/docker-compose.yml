@@ -2,10 +2,7 @@ version: '3.7'
 
 services:
   mysql_db:
-    build:
-      context: ./
-      args:
-        MYSQL_VERSION: $MYSQL_VERSION
+    image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: zk4Vy8sv
     volumes:
