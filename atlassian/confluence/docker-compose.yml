@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  confluence_server:
+    image: atlassian/confluence-server:ubuntu
+    environment:
+      - "JVM_MINIMUM_MEMORY=2048m"
+      - "JVM_MAXIMUM_MEMORY=2048m"
+      - "ATL_DB_TYPE=postgresql"
+      - "ATL_JDBC_URL=jdbc:postgresql://192.168.0.102:5433/cipitech_confluence"
+      - "ATL_JDBC_USER=postgres"
+      - "ATL_JDBC_PASSWORD=postgres"
+    volumes:
+      - confluence_server_data:/var/atlassian/application-data/confluence
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+    networks:
+      - net
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: "2g"
+    logging:
+      options:
+        max-size: 500m
+        max-file: "10"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+      log_group: "confluence"
+      
+volumes:
+  confluence_server_data:
+    driver: local
+    
+networks:
+  net:
+    driver: bridge
